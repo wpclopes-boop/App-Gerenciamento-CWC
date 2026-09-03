@@ -1,0 +1,36 @@
+# Configuracao de deploy no Fly.io. Troque "app" pelo nome que voce criar
+# em `fly launch --no-deploy` e ajuste a regiao (gru = Sao Paulo).
+app = "fitness-app"
+primary_region = "gru"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  COOKIE_SECURE = "1"
+  FITNESS_DB = "/data/fitness.db"
+  FITNESS_BACKUP_DIR = "/data/backups"
+
+# Disco persistente: sem isso o banco some a cada deploy.
+[[mounts]]
+  source = "fitness_dados"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/api/saude"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

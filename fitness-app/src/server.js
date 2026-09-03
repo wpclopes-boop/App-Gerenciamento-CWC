@@ -13,6 +13,8 @@ import registrarRotasTreinos from './routes/treinos.js';
 import registrarRotasNutricao from './routes/nutricao.js';
 import registrarRotasCorpo from './routes/corpo.js';
 import registrarRotasPainel from './routes/painel.js';
+import registrarRotasSistema from './routes/sistema.js';
+import { agendarBackups } from './backup.js';
 
 const raizProjeto = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIR_PUBLICO = join(raizProjeto, 'public');
@@ -48,6 +50,7 @@ export function criarRouter() {
   registrarRotasNutricao(router);
   registrarRotasCorpo(router);
   registrarRotasPainel(router);
+  registrarRotasSistema(router);
   return router;
 }
 
@@ -92,6 +95,22 @@ export function criarServidor(db = getDb()) {
     res.setHeader('Content-Security-Policy', CSP);
 
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+
+    // Prova de que o site e o app Android sao do mesmo dono (Trusted Web Activity).
+    // Definido em TWA_ASSETLINKS quando o app for publicado; sem isso, nao existe.
+    if (url.pathname === '/.well-known/assetlinks.json') {
+      const assetlinks = process.env.TWA_ASSETLINKS;
+      if (!assetlinks) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Nao encontrado');
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Length': Buffer.byteLength(assetlinks),
+      });
+      res.end(assetlinks);
+      return;
+    }
 
     if (!url.pathname.startsWith('/api/')) {
       await servirEstatico(res, url.pathname === '/' ? '/index.html' : url.pathname);
@@ -140,6 +159,7 @@ if (executadoDiretamente) {
   const db = getDb();
   limparSessoesExpiradas(db);
   setInterval(() => limparSessoesExpiradas(db), 6 * 60 * 60 * 1000).unref();
+  if (process.env.FITNESS_BACKUP !== '0') agendarBackups(db);
 
   criarServidor(db).listen(porta, host, () => {
     console.log(`Fitness App rodando em http://localhost:${porta}`);

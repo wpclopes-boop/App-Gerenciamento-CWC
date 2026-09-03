@@ -18,7 +18,8 @@ function criarCliente(base) {
     const setCookie = resposta.headers.getSetCookie?.()[0];
     if (setCookie) cookie = setCookie.split(';')[0];
     const texto = await resposta.text();
-    return { status: resposta.status, corpo: texto ? JSON.parse(texto) : null };
+    const ehJson = (resposta.headers.get('content-type') || '').includes('json');
+    return { status: resposta.status, corpo: texto && ehJson ? JSON.parse(texto) : (texto || null) };
   };
 }
 
@@ -349,4 +350,25 @@ test('fotos de progresso sao gravadas e servidas', async (t) => {
 
   await app.chamar('DELETE', `/api/fotos/${fotos[0].id}`);
   assert.equal((await app.chamar('GET', '/api/fotos')).corpo.fotos.length, 0);
+});
+
+test('rota de saude responde sem sessao e assetlinks so existe quando configurado', async (t) => {
+  const app = await subirServidor();
+  t.after(app.fechar);
+
+  const saude = await app.chamar('GET', '/api/saude');
+  assert.equal(saude.status, 200);
+  assert.equal(saude.corpo.ok, true);
+  assert.equal(saude.corpo.banco, 'conectado');
+
+  const semConfig = await app.chamar('GET', '/.well-known/assetlinks.json');
+  assert.equal(semConfig.status, 404);
+
+  const conteudo = JSON.stringify([{ relation: ['delegate_permission/common.handle_all_urls'] }]);
+  process.env.TWA_ASSETLINKS = conteudo;
+  t.after(() => { delete process.env.TWA_ASSETLINKS; });
+
+  const comConfig = await app.chamar('GET', '/.well-known/assetlinks.json');
+  assert.equal(comConfig.status, 200);
+  assert.deepEqual(comConfig.corpo, JSON.parse(conteudo));
 });
