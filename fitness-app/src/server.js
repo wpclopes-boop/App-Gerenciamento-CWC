@@ -69,10 +69,13 @@ async function servirEstatico(res, pathname) {
 
   try {
     const conteudo = await readFile(arquivo);
+    // O service worker e o manifesto precisam ser revalidados sempre, senao
+    // uma versao antiga do app continua sendo servida apos o deploy.
+    const semCache = ['.html', '.webmanifest'].includes(extname(arquivo)) || arquivo.endsWith('sw.js');
     res.writeHead(200, {
       'Content-Type': TIPOS[extname(arquivo)] || 'application/octet-stream',
       'Content-Length': conteudo.length,
-      'Cache-Control': extname(arquivo) === '.html' ? 'no-cache' : 'public, max-age=3600',
+      'Cache-Control': semCache ? 'no-cache' : 'public, max-age=3600',
     });
     res.end(conteudo);
   } catch {

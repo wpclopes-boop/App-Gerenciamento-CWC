@@ -9,7 +9,9 @@ import * as metas from './views/metas.js';
 
 const VIEWS = { painel, dieta, treino, progresso, metas };
 let modoCadastro = false;
-let secaoAtual = 'painel';
+// Atalhos do app instalado abrem direto numa seção: /?secao=treino
+const secaoInicial = new URLSearchParams(location.search).get('secao');
+let secaoAtual = Object.hasOwn(VIEWS, secaoInicial ?? '') ? secaoInicial : 'painel';
 
 const el = (id) => document.getElementById(id);
 
@@ -94,3 +96,33 @@ document.querySelectorAll('.ntab').forEach((tab) => {
 api.get('/api/auth/eu')
   .then(({ usuario }) => (usuario ? mostrarApp(usuario) : mostrarLogin()))
   .catch(mostrarLogin);
+
+// ---- App instalável (PWA) ----
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => { /* segue como site normal */ });
+  });
+}
+
+// O navegador avisa quando o app pode ser instalado; guardamos o evento para o botão.
+let promptInstalacao = null;
+
+window.addEventListener('beforeinstallprompt', (evento) => {
+  evento.preventDefault();
+  promptInstalacao = evento;
+  el('btn-instalar').classList.remove('hidden');
+});
+
+el('btn-instalar').addEventListener('click', async () => {
+  if (!promptInstalacao) return;
+  promptInstalacao.prompt();
+  await promptInstalacao.userChoice;
+  promptInstalacao = null;
+  el('btn-instalar').classList.add('hidden');
+});
+
+window.addEventListener('appinstalled', () => {
+  promptInstalacao = null;
+  el('btn-instalar').classList.add('hidden');
+  toast('App instalado 📲');
+});

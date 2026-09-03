@@ -29,6 +29,19 @@ Ao criar a conta, o app já vem com 38 exercícios, 40 alimentos com macros, 3 f
 (Peito+Tríceps, Costas+Bíceps, Pernas em casa) e 3 planos alimentares (dia de academia,
 dia de pernas em casa e dia de descanso). Tudo é editável.
 
+## Instalar no celular (PWA)
+
+O app é instalável: abra a URL do servidor no celular e use **Instalar app** (Android/Chrome mostra
+o botão no topo; no iPhone, Safari → Compartilhar → *Adicionar à Tela de Início*). Ele abre em tela
+cheia, com ícone próprio, e a casca funciona offline — os dados continuam vindo do servidor.
+
+- `public/manifest.webmanifest` — nome, ícones, cores e atalhos (`/?secao=treino` abre direto no treino).
+- `public/sw.js` — service worker: cacheia HTML/CSS/JS e **nunca** cacheia `/api/`.
+- `scripts/gerar-icones.mjs` — regenera os PNGs do ícone (`node scripts/gerar-icones.mjs`).
+
+Para instalar fora de `localhost` o servidor precisa estar em **HTTPS** (requisito de PWA) — nesse
+caso, defina também `COOKIE_SECURE=1`.
+
 ## Funcionalidades
 
 **Painel** — calorias e macros do dia contra a meta, água, treinos na semana, peso atual,
