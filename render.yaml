@@ -1,7 +1,14 @@
 # Blueprint do Render: cria o serviço já configurado a partir deste repositório.
 # No painel do Render: New → Blueprint → escolha este repositório.
-# Plano Starter (pago) é necessário porque o app precisa de disco persistente
-# para o banco SQLite — no plano free os dados seriam apagados a cada deploy.
+#
+# COMO ESTÁ: plano Starter (pago) com disco persistente — é o correto para uso
+# real, porque o banco SQLite sobrevive aos deploys.
+#
+# SÓ PARA TESTAR A INSTALAÇÃO NO CELULAR, sem cartão: troque "plan: starter" por
+# "plan: free" e apague o bloco "disk:" inteiro. O app sobe com HTTPS e instala
+# normalmente no Android e no iPhone; em troca, o serviço hiberna quando ninguém
+# usa (o primeiro acesso demora ~1 min) e OS DADOS SÃO APAGADOS a cada reinício.
+# Serve para ver o app instalado no celular, não para registrar treino de verdade.
 services:
   - type: web
     name: fitness-app

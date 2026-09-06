@@ -63,6 +63,12 @@ A partir daí, **todo push na branch publica sozinho** (`autoDeploy: true`). Pre
 Starter (por volta de US$ 7/mês na data deste texto, mais ~US$ 0,25/mês pelo disco de 1 GB) —
 o plano free não permite disco, e sem disco o banco é apagado a cada deploy.
 
+**Só para testar a instalação no celular**, dá para subir sem pagar: no `render.yaml`, troque
+`plan: starter` por `plan: free` e apague o bloco `disk:`. O app fica com HTTPS e instala
+normalmente nos dois sistemas; em troca hiberna sem uso (o primeiro acesso demora cerca de um
+minuto) e **perde os dados a cada reinício**. Serve para ver o app na tela inicial do celular,
+não para registrar treino de verdade.
+
 ### Opção B — Fly.io, por linha de comando (mais barato)
 
 Com a [CLI do Fly](https://fly.io/docs/flyctl/install/) instalada e logada:
