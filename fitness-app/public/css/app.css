@@ -28,6 +28,11 @@ a{color:var(--fire);}
 .ntab.on{background:rgba(245,166,35,0.1);border-color:var(--fire);color:var(--fire);}
 .nav-user{display:flex;align-items:center;gap:8px;font-size:0.72rem;color:var(--muted);}
 
+.dica-ios{max-width:1080px;margin:10px auto;display:flex;align-items:center;gap:10px;
+  justify-content:space-between;padding:9px 13px;border-radius:8px;font-size:0.76rem;
+  background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.25);color:var(--text);}
+.dica-ios b{color:var(--fire);}
+
 .wrap{max-width:1080px;margin:0 auto;padding:20px 12px 70px;}
 .section{display:none;animation:fadeUp .22s ease;}
 .section.on{display:block;}

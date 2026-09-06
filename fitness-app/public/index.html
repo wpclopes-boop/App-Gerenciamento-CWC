@@ -19,6 +19,13 @@
 </head>
 <body>
 
+<!-- O iPhone nao oferece botao de instalar: o caminho e pelo menu Compartilhar.
+     Fica fora de #tela-auth e de #app para valer nas duas telas. -->
+<div class="dica-ios hidden" id="dica-ios">
+  <span>📲 Para instalar: toque em <b>Compartilhar</b> e escolha <b>Adicionar à Tela de Início</b>.</span>
+  <button class="icon-del" id="fechar-dica-ios" aria-label="Fechar">✕</button>
+</div>
+
 <!-- ══════════ LOGIN / CADASTRO ══════════ -->
 <div class="auth" id="tela-auth">
   <div class="auth-card">

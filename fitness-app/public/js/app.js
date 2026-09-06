@@ -126,3 +126,29 @@ window.addEventListener('appinstalled', () => {
   el('btn-instalar').classList.add('hidden');
   toast('App instalado 📲');
 });
+
+// iPhone/iPad nao disparam beforeinstallprompt: a instalacao e manual, pelo
+// menu Compartilhar. Sem uma dica, o usuario de iOS simplesmente nao descobre.
+const CHAVE_DICA_IOS = 'dica_ios_fechada';
+
+function ehIOS() {
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad recente
+}
+
+function jaInstalado() {
+  return navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+}
+
+function guardou(chave) {
+  try { return localStorage.getItem(chave) === '1'; } catch { return false; }
+}
+
+if (ehIOS() && !jaInstalado() && !guardou(CHAVE_DICA_IOS)) {
+  el('dica-ios').classList.remove('hidden');
+  el('fechar-dica-ios').addEventListener('click', () => {
+    el('dica-ios').classList.add('hidden');
+    try { localStorage.setItem(CHAVE_DICA_IOS, '1'); } catch { /* modo privado */ }
+  });
+}
