@@ -1,0 +1,27 @@
+# Blueprint do Render: cria o serviço já configurado a partir deste repositório.
+# No painel do Render: New → Blueprint → escolha este repositório.
+# Plano Starter (pago) é necessário porque o app precisa de disco persistente
+# para o banco SQLite — no plano free os dados seriam apagados a cada deploy.
+services:
+  - type: web
+    name: fitness-app
+    runtime: docker
+    plan: starter
+    region: oregon
+    rootDir: fitness-app
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/saude
+    autoDeploy: true
+    disk:
+      name: fitness-dados
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: COOKIE_SECURE
+        value: 1
+      - key: FITNESS_DB
+        value: /data/fitness.db
+      - key: FITNESS_BACKUP_DIR
+        value: /data/backups

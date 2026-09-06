@@ -45,25 +45,43 @@ cheia, com ícone próprio, e a casca funciona offline — os dados continuam vi
 Para instalar fora de `localhost` o servidor precisa estar em **HTTPS** (requisito de PWA) — nesse
 caso, defina também `COOKIE_SECURE=1`.
 
-## Deploy (Fly.io)
+## Colocar no ar
 
-O repositório já traz `Dockerfile` e `fly.toml`. Com a [CLI do Fly](https://fly.io/docs/flyctl/install/)
-instalada e logada:
+O app só ganha um endereço depois de publicado — não existe URL antes disso. Duas formas:
+
+### Opção A — Render, pelo navegador (sem instalar nada)
+
+O `render.yaml` na raiz do repositório já descreve o serviço inteiro (Docker, disco em `/data`,
+health check e variáveis).
+
+1. Crie a conta em https://render.com e conecte o GitHub.
+2. **New → Blueprint** → escolha o repositório `App-Gerenciamento-CWC` → *Apply*.
+3. O Render constrói e publica. O endereço fica no painel, no formato
+   `https://<nome-que-voce-escolher>.onrender.com`.
+
+A partir daí, **todo push na branch publica sozinho** (`autoDeploy: true`). Precisa do plano
+Starter (por volta de US$ 7/mês na data deste texto, mais ~US$ 0,25/mês pelo disco de 1 GB) —
+o plano free não permite disco, e sem disco o banco é apagado a cada deploy.
+
+### Opção B — Fly.io, por linha de comando (mais barato)
+
+Com a [CLI do Fly](https://fly.io/docs/flyctl/install/) instalada e logada:
 
 ```bash
 cd fitness-app
 fly launch --no-deploy          # escolha um nome; ele atualiza o "app" no fly.toml
 fly volumes create fitness_dados --size 1 --region gru
 fly deploy
-fly open                        # abre https://SEU-APP.fly.dev
+fly open                        # abre a URL real, https://<seu-nome>.fly.dev
 ```
 
-O `fly.toml` já define `COOKIE_SECURE=1`, o disco persistente em `/data` (banco + backups) e o
-health check em `/api/saude`. **O volume é obrigatório**: sem ele o banco é recriado a cada deploy.
+Sai por volta de US$ 2–3/mês, porque a máquina suspende quando ninguém acessa e acorda no
+primeiro acesso. Para publicar automaticamente a cada push, gere um token com
+`fly tokens create deploy`, salve como secret `FLY_API_TOKEN` no GitHub e use o
+[action oficial](https://github.com/superfly/flyctl-actions).
 
-Outras hospedagens funcionam do mesmo jeito — basta rodar o `Dockerfile`, apontar `FITNESS_DB`
-para um disco persistente e definir `COOKIE_SECURE=1`. Evite planos sem disco (o free do Render,
-por exemplo), porque o SQLite some junto com o contêiner.
+Em qualquer hospedagem o essencial é o mesmo: rodar o `Dockerfile`, apontar `FITNESS_DB` para um
+disco persistente e definir `COOKIE_SECURE=1`.
 
 ### Backup do banco
 
@@ -75,6 +93,7 @@ Restaurar é copiar o arquivo por cima do banco com o app parado:
 
 ```bash
 fly ssh console -C "cp /data/backups/fitness-2026-09-03T12-00-00.db /data/fitness.db"
+# no Render, o equivalente é abrir o Shell do serviço no painel e rodar o mesmo cp
 ```
 
 Atenção: os backups ficam no mesmo volume do banco — protegem contra erro de aplicação ou exclusão
