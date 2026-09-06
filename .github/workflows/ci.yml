@@ -1,0 +1,50 @@
+# Roda os testes a cada push e em cada pull request.
+name: Testes
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fitness-app
+    steps:
+      - uses: actions/checkout@v4
+
+      # O app nao tem dependencias: node:sqlite exige Node 22.5 ou mais novo.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Versao do Node
+        run: node --version
+
+      - name: Testes
+        run: npm test
+
+      # Garante que a lista de COPY do Dockerfile e suficiente: o app sobe a
+      # partir de uma copia so com esses arquivos e responde ao health check.
+      - name: Servidor sobe apenas com os arquivos da imagem
+        run: |
+          mkdir -p /tmp/imagem/app /tmp/imagem/data
+          cp package.json /tmp/imagem/app/
+          cp -r src public scripts /tmp/imagem/app/
+          cd /tmp/imagem/app
+          PORT=8080 COOKIE_SECURE=1 \
+            FITNESS_DB=/tmp/imagem/data/fitness.db \
+            FITNESS_BACKUP_DIR=/tmp/imagem/data/backups \
+            node src/server.js &
+          for tentativa in $(seq 1 20); do
+            sleep 0.5
+            if curl -sf localhost:8080/api/saude > /dev/null; then
+              echo "Health check respondeu:"
+              curl -s localhost:8080/api/saude
+              exit 0
+            fi
+          done
+          echo "O servidor nao respondeu em /api/saude"
+          exit 1
