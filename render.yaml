@@ -1,0 +1,34 @@
+# Blueprint do Render: cria o serviço já configurado a partir deste repositório.
+# No painel do Render: New → Blueprint → escolha este repositório.
+#
+# COMO ESTÁ: plano Starter (pago) com disco persistente — é o correto para uso
+# real, porque o banco SQLite sobrevive aos deploys.
+#
+# SÓ PARA TESTAR A INSTALAÇÃO NO CELULAR, sem cartão: troque "plan: starter" por
+# "plan: free" e apague o bloco "disk:" inteiro. O app sobe com HTTPS e instala
+# normalmente no Android e no iPhone; em troca, o serviço hiberna quando ninguém
+# usa (o primeiro acesso demora ~1 min) e OS DADOS SÃO APAGADOS a cada reinício.
+# Serve para ver o app instalado no celular, não para registrar treino de verdade.
+services:
+  - type: web
+    name: fitness-app
+    runtime: docker
+    plan: starter
+    region: oregon
+    rootDir: fitness-app
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/saude
+    autoDeploy: true
+    disk:
+      name: fitness-dados
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: COOKIE_SECURE
+        value: 1
+      - key: FITNESS_DB
+        value: /data/fitness.db
+      - key: FITNESS_BACKUP_DIR
+        value: /data/backups

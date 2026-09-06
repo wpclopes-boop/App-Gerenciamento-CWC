@@ -1,0 +1,26 @@
+{
+  "name": "Fitness App — Treino & Dieta",
+  "short_name": "Fitness",
+  "description": "Treinos, dieta, evolução corporal e metas em um só lugar.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0806",
+  "theme_color": "#f5a623",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icone-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icone-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Dieta de hoje", "short_name": "Dieta", "url": "/?secao=dieta", "icons": [{ "src": "/icons/icone-192.png", "sizes": "192x192" }] },
+    { "name": "Treino", "short_name": "Treino", "url": "/?secao=treino", "icons": [{ "src": "/icons/icone-192.png", "sizes": "192x192" }] },
+    { "name": "Progresso", "short_name": "Progresso", "url": "/?secao=progresso", "icons": [{ "src": "/icons/icone-192.png", "sizes": "192x192" }] }
+  ]
+}
